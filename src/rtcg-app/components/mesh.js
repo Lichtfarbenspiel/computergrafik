@@ -1,75 +1,101 @@
-import { BoxBufferGeometry, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, TextureLoader, FrontSide, PlaneBufferGeometry, SphereBufferGeometry, MathUtils } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import { Object3D, BoxBufferGeometry, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, TextureLoader, FrontSide, PlaneBufferGeometry, SphereBufferGeometry, MathUtils, Euler } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import { createHaloShader } from '../systems/shader.js';
 
 let loader = new TextureLoader();
+let rad_perSecond = MathUtils.degToRad(25);
 
-function createCube() {
-    const geometry = new BoxBufferGeometry(2, 2, 2);
-    const material = new MeshBasicMaterial({color: 0x0000FF});
-    material.roughness = 0.5;
+OCCLUSION_LAYER = 1;
 
-    const cube_materials = [
-        new MeshBasicMaterial({map: loader.load('./../../img/concrete.jpg'), side: FrontSide}),
-        new MeshBasicMaterial({map: loader.load('./../../../img/concrete.jpg'), side: FrontSide}),
-        new MeshBasicMaterial({map: loader.load('./../../../img/concrete.jpg'), side: FrontSide}),
-        new MeshBasicMaterial({map: loader.load('./../../../img/concrete.jpg'), side: FrontSide}),
-        new MeshBasicMaterial({map: loader.load('./../../../img/concrete.jpg'), side: FrontSide}),
-        new MeshBasicMaterial({map: loader.load('./../../../img/concrete.jpg'), side: FrontSide})
-    ];
-    cube_materials.metalness = 1;
-
-    const cube = new Mesh(geometry, cube_materials);
-
-    const rad_perSecond = MathUtils.degToRad(25);
-
-    cube.tick = (delta) => {
+function createObject3D(speed = 1) {
+    const obj3D = new Object3D();
+    obj3D.tick = (delta) => {
         // Erhöhung der Werte pro Frame
-        cube.rotation.z += rad_perSecond * delta;
-        cube.rotation.x += rad_perSecond * delta;
-        cube.rotation.y += rad_perSecond * delta;
+        // sphere.rotation.z += rad_perSecond * delta;
+        // sphere.rotation.x += rad_perSecond * delta;
+        // sphere.rotation.y += rad_perSecond * delta;
+        obj3D.rotateY(rad_perSecond * delta * speed);
     };
 
-    return cube;
+    return obj3D;
 }
 
-function createPlane() {
-    const geometry = new PlaneBufferGeometry(6, 6, 1);
-    const material = new MeshPhysicalMaterial( {map: loader.load('./../../img/floor_tiles/floor_tiles_06_diff_4k.jpg')} );
-
-    material.roughnessMap = loader.load('./../../img/floor_tiles/floor_tiles_06_rough_4k.jpg');
-    material.normalMap = loader.load('./../../img/floor_tiles/floor_tiles_06_nor_4k.jpg');
-    material.metalnessMap = loader.load('./../../img/floor_tiles/floor_tiles_06_spec_4k.jpg');
-    material.roughness = 1;
-    material.metalness = 0.1;
-
-    const plane = new Mesh(geometry, material);
-    plane.position.set(0, -1.75, 0);
-    plane.rotateX(-1.5);
-
-    return plane;
-}
-
-function createSphere(radius, widthSegments, heightSegments, colour, metalness) {
+function createSphere(radius, widthSegments, heightSegments, texture = null, material = null, speed = 0, metalness = 0.5, roughness = 0.5, specularmap = null, normalmap = null, bumpmap = null, transparent = false, opacity = 1) {
     const geometry = new SphereBufferGeometry(radius, widthSegments, heightSegments);
-    const material = new MeshPhysicalMaterial( {map: loader.load('./../../img/green_metal_rust/green_metal_rust_diff_1k.jpg')} );
+    var mat;
+    if (texture) {
+        mat = new MeshPhysicalMaterial( {map: loader.load(texture)} );
 
-    material.roughnessMap = loader.load('./../../img/green_metal_rust/green_metal_rust_rough_1k.jpg');
-    material.normalMap = loader.load('./../../img/green_metal_rust/green_metal_rust_Nor_1k.jpg');
-    material.metalnessMap = loader.load('./../../img/green_metal_rust/green_metal_rust_spec_1k.jpg');
-    material.metalness = 0.6;
-    material.roughness = 0.6;
+        // material.specularMap = loader.load(specularmap);
+        mat.normalMap = loader.load(normalmap);
+        mat.metalnessMap = loader.load(specularmap);
+        mat.bumpMap = loader.load(bumpmap);
+    }
 
-    const sphere = new Mesh(geometry, material);
+    if (material) {
+        mat = material;
+    }
     
-    const rad_perSecond = MathUtils.degToRad(25);
+    mat.metalness = metalness;
+    mat.roughness = roughness;
+    mat.transparent = transparent;
+    mat.opacity = opacity;
+
+    const sphere = new Mesh(geometry, mat);
 
     sphere.tick = (delta) => {
         // Erhöhung der Werte pro Frame
-        sphere.rotation.z += rad_perSecond * delta;
-        sphere.rotation.x += rad_perSecond * delta;
-        sphere.rotation.y += rad_perSecond * delta;
+        // sphere.rotation.z += rad_perSecond * delta;
+        // sphere.rotation.x += rad_perSecond * delta;
+        // sphere.rotation.y += rad_perSecond * delta;
+        sphere.rotateY(rad_perSecond * delta * speed);
     };
 
     return sphere;
 }
 
-export { createPlane, createCube, createSphere }
+
+function createSolarSystem(solarSystem) {
+    const solarSystemObj3D = createObject3D(0);
+
+    Object.values(solarSystem).forEach(element => {
+        var rotatingObj = createObject3D(element.orbitspeed);
+        if (element.type != "halo") {
+            var satellite;
+            // const satellite =  createSphere(element.diameter/2, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
+            switch (element.type) {
+                case "sun":
+                    satellite =  createSphere(element.diameter/2 , element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
+                    layers.set(OCCLUSION_LAYER);
+                    rotatingObj.add(satellite);
+                    break;
+                case "earth":
+                    satellite =  createSphere(element.diameter * 5, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
+                    satellite.position.set(element.distance/30, 0, 0);
+                    const clouds =  createSphere(element.clouds.diameter * 5, element.clouds.width, element.clouds.height, element.clouds.texture, element.clouds.material, element.clouds.speed, element.clouds.metalness, element.clouds.roughness, element.clouds.specularmap, element.clouds.normalmap, element.clouds.bumpmap, element.clouds.transparent, element.clouds.opacity);
+                    const earthObj3D = new createObject3D(element.moon.speed);
+                    const moon =  createSphere(element.moon.diameter * 5, element.moon.width, element.moon.height, element.moon.texture, element.moon.material, element.moon.speed, element.moon.metalness, element.moon.roughness, element.moon.specularmap, element.moon.normalmap, element.moon.bumpmap, element.moon.transparent, element.moon.opacity);
+                    moon.position.set(element.moon.distance/10, 0, 0);
+                    earthObj3D.add(moon);
+                    satellite.add(clouds, earthObj3D);
+                    rotatingObj.add(satellite);
+                    solarSystemObj3D.children[0].add(rotatingObj);
+                    break;
+                case "planet":
+                    satellite =  createSphere(element.diameter * 5, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
+                    satellite.position.set(element.distance/30, 0, 0);
+                    rotatingObj.add(satellite);
+                    solarSystemObj3D.children[0].add(rotatingObj);
+                    break;
+            }
+            solarSystemObj3D.add(rotatingObj);
+        } else {
+            const satellite =  createSphere(element.diameter/2 , element.width, element.height, element.texture, createHaloShader(), element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
+            solarSystemObj3D.add(satellite);
+        }
+    });
+    
+    console.log(solarSystemObj3D);
+    return solarSystemObj3D;
+}
+
+export { createObject3D, createSphere, createSolarSystem }

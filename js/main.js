@@ -11,6 +11,7 @@ function main() {
     // render scene
     rtcg.start();
     // rtcg.render();
+    // document.getElementById("earth").addEventListener("click", rtcg.updateControls()); 
 }
 
 main();

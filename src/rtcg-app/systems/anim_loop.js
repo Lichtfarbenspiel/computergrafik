@@ -12,7 +12,7 @@ class Anim_loop {
 
     start() {
         this.renderer.setAnimationLoop(() => {
-            //TeilejedemanimiertenObjektmit,dasseseinenFramevorwärts"ticken"soll
+            //Teile jedem animierten Objekt mit, dass es einen Framevorwärts "ticken" soll
             this.tick();
             // render a frame
             this.renderer.render(this.scene, this.camera);
@@ -24,7 +24,7 @@ class Anim_loop {
     }
 
     tick() {
-        //AktualisierungderAnimationen(Code)
+        //Aktualisierung der Animationen(Code)
         const delta = clock.getDelta()
         for (const object of this.animated_objects) {
             object.tick(delta);
