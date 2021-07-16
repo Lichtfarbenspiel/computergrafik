@@ -4,9 +4,7 @@ import { createHaloShader } from '../systems/shader.js';
 let loader = new TextureLoader();
 let rad_perSecond = MathUtils.degToRad(25);
 
-OCCLUSION_LAYER = 1;
-
-function createObject3D(speed = 1) {
+function createObject3D(speed = 0) {
     const obj3D = new Object3D();
     obj3D.tick = (delta) => {
         // Erhöhung der Werte pro Frame
@@ -58,21 +56,21 @@ function createSolarSystem(solarSystem) {
     const solarSystemObj3D = createObject3D(0);
 
     Object.values(solarSystem).forEach(element => {
-        var rotatingObj = createObject3D(element.orbitspeed);
+        var rotatingObj = createObject3D(element.orbitspeed /100);
         if (element.type != "halo") {
             var satellite;
+            var camObj = new createObject3D();
             // const satellite =  createSphere(element.diameter/2, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
             switch (element.type) {
                 case "sun":
                     satellite =  createSphere(element.diameter/2 , element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
-                    layers.set(OCCLUSION_LAYER);
                     rotatingObj.add(satellite);
                     break;
                 case "earth":
                     satellite =  createSphere(element.diameter * 5, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
                     satellite.position.set(element.distance/30, 0, 0);
                     const clouds =  createSphere(element.clouds.diameter * 5, element.clouds.width, element.clouds.height, element.clouds.texture, element.clouds.material, element.clouds.speed, element.clouds.metalness, element.clouds.roughness, element.clouds.specularmap, element.clouds.normalmap, element.clouds.bumpmap, element.clouds.transparent, element.clouds.opacity);
-                    const earthObj3D = new createObject3D(element.moon.speed);
+                    const earthObj3D = new createObject3D(element.moon.orbitspeed);
                     const moon =  createSphere(element.moon.diameter * 5, element.moon.width, element.moon.height, element.moon.texture, element.moon.material, element.moon.speed, element.moon.metalness, element.moon.roughness, element.moon.specularmap, element.moon.normalmap, element.moon.bumpmap, element.moon.transparent, element.moon.opacity);
                     moon.position.set(element.moon.distance/10, 0, 0);
                     earthObj3D.add(moon);

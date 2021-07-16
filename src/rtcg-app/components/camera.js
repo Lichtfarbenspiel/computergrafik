@@ -8,7 +8,7 @@ function createCamera() {
         100, //FarClip
     );
 
-    camera.position.set(2, 8, 15);
+    camera.position.set(0.03, 0, 0);
     camera.lookAt(0, 0, 0);
     camera.up.set(0, 0, 1);
 

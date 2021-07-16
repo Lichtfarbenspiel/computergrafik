@@ -5,8 +5,8 @@ import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/Resizer.js';
 import { createAmbientLight, createDirectionalLight, createHemisphereLight, createPointLight } from './components/light.js';
 import { Anim_loop } from './systems/anim_loop.js';
-import { createControls } from './systems/control.js';
-
+import { createControls, setCameraDistance } from './systems/control.js';
+// import * as dat from 'https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.js';
 
 
 let camera;
@@ -15,6 +15,7 @@ let scene;
 let anim_loop;
 let solarSystemObj
 let controls;
+let gui;
 
 
 class RTCG {
@@ -25,6 +26,7 @@ class RTCG {
         scene = createScene();
         renderer = createRenderer();
         anim_loop = new Anim_loop(camera, scene, renderer);
+        gui = new dat.GUI();
 
         container.append(renderer.domElement);
 
@@ -86,7 +88,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/mercurymap.jpg',
                 material: null,
-                speed: 0.5097600, // 59 days
+                speed: 0.0030083333333333, // 1000 m/s                src="https://ourplnt.com/relative-rotation-speeds-of-the-planets/#axzz70UXVk7Qe"
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -95,7 +97,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 41,
-                orbitspeed: 0.7603200 // 88 Days                
+                orbitspeed: 47.36 // 1000 m/s      src="https://rechneronline.de/planeten/geschwindigkeit.php"         
             },
             venus: {
                 type: "planet",
@@ -104,7 +106,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/venus.jpg',
                 material: null,
-                speed: 0.20995200, // 243 Days
+                speed: 0.0018111111111111, // 1000 m/s 
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -113,7 +115,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 77,
-                orbitspeed: 0.19440000 // 225 Days 
+                orbitspeed: 35.02  // 1000 m/s   
             },
             earth: {
                 type: "earth",
@@ -122,7 +124,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/earth_map.jpg',
                 material: null,
-                speed: 0.86400, // 1 Day
+                speed: 0.000465, // 1000 m/s
                 metalness: 1,
                 roughness: 0,
                 specularmap: './../../img/earth_specular_map.png',
@@ -131,7 +133,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 107,
-                orbitspeed: 0.31536000, // 365 Days
+                orbitspeed: 29.78, // 1000 m/s  
                 clouds: {
                     diameter: 0.0091,
                     width: 28,
@@ -164,7 +166,7 @@ class RTCG {
                     transparent: false,
                     opacity: null,
                     distance: 0.8, //0.275,
-                    orbitspeed: 0.5
+                    orbitspeed: 0.978 // 1000 m/s  
                 }
             },
             mars: {
@@ -174,7 +176,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/mars.jpg',
                 material: null,
-                speed: 0.86400, // 1 Day
+                speed: 0.2405555555555, // 1000 m/s  
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -183,7 +185,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 163,
-                orbitspeed: 0.59356800 // 687 Days 
+                orbitspeed: 24 // 1000 m/s  
             },
             jupiter: {
                 type: "planet",
@@ -192,7 +194,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/jupiter.jpg',
                 material: null,
-                speed: 0.32400, // 9 Hours
+                speed: 0.012661944444444, // 1000 m/s
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -201,7 +203,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 556,
-                orbitspeed: 0.5
+                orbitspeed: 13.07 // 1000 m/s 
             },
             saturn: {
                 type: "planet",
@@ -210,7 +212,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/saturn.jpg',
                 material: null,
-                speed: 0,
+                speed: 0.010233333333333, // 1000 m/s 
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -219,7 +221,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 1019,
-                orbitspeed: 0.5
+                orbitspeed: 9.68 // 1000 m/s 
             },
             uranus: {
                 type: "planet",
@@ -228,7 +230,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/uranusmap.jpg',
                 material: null,
-                speed: 0,
+                speed: 0.0041094444444444, // 1000 m/s 
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -237,7 +239,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 2051,
-                orbitspeed: 0.5
+                orbitspeed: 6.8 // 1000 m/s
             },
             neptune: {
                 type: "planet",
@@ -246,7 +248,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/neptune.jpg',
                 material: null,
-                speed: 0,
+                speed: 0.0026997222222222, // 1000 m/s
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -255,7 +257,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 3213,
-                orbitspeed: 0.5
+                orbitspeed: 5.43 // 1000 m/s
             },
             pluto: {
                 type: "planet",
@@ -264,7 +266,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/pluto.jpg',
                 material: null,
-                speed: 0,
+                speed: 0.034225, // 1000 m/s
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -273,7 +275,7 @@ class RTCG {
                 transparent: false,
                 opacity: null,
                 distance: 4219,
-                orbitspeed: 0.5
+                orbitspeed: 4.743 // 1000 m/s
             }
         };
 
@@ -282,7 +284,7 @@ class RTCG {
 
         // Controls
         controls = createControls(camera, renderer.domElement);
-        controls.enablePan = true;   
+        controls.enablePan = true;  
 
 
         anim_loop.animated_objects.push(solarSystemObj.children[0].children[0]);
@@ -292,10 +294,81 @@ class RTCG {
         for (let i = 2; i < solarSystemObj.children.length; i++) {
             solarSystemObj.children[i].children.forEach(element => {
                 anim_loop.animated_objects.push(element);
+                if ( i == 4 ) {
+                    console.log("Mond?: " + solarSystemObj.children[4].children[0].children[1].children[0].uuid);
+                    anim_loop.animated_objects.push(solarSystemObj.children[4].children[0].children[1]);
+                }
            });
             anim_loop.animated_objects.push(solarSystemObj.children[i]);
         }
         
+
+        var props = {
+            hideBars:false,
+            // depthZ_Fraction:0.015,
+            // barColor: '#FFFFFF',
+            planets:'Vertical'
+        };
+
+    
+        const planets = gui.add(props, 'planets', 
+            ['Sun', 'Mercury', 'Venus', 'Earth', 'Moon', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'])
+            .name('planets')
+            .listen();
+
+        // Jump to selected planet    
+        planets.onChange(
+            function(planet) {
+                console.log(planet);
+                switch (planet) {
+                    case 'Sun':
+                        solarSystemObj.children[0].add(camera);
+                        controls.object.position.set(0, 0, 5);
+                        break;
+                    case 'Mercury':
+                        solarSystemObj.children[2].children[0].add(camera);
+                        controls.object.position.set(0, 0, 1);
+                        break;
+                    case 'Venus':
+                        solarSystemObj.children[3].children[0].add(camera);
+                        controls.object.position.set(0, 0, 1);
+                        break;
+                    case 'Earth':
+                        console.log( solarSystemObj.children[4].children[0].uuid);
+                        solarSystemObj.children[4].children[0].add(camera);
+                        controls.object.position.set(0, 0, 1);
+                        break;
+                    case 'Moon':
+                        solarSystemObj.children[4].children[0].children[1].children[0].add(camera);
+                        controls.object.position.set(0, 0, 0.5);
+                        break;
+                    case 'Mars':
+                        solarSystemObj.children[5].children[0].add(camera);
+                        controls.object.position.set(0, 0, 1);
+                        break;
+                    case 'Jupiter':
+                        solarSystemObj.children[6].children[0].add(camera);
+                        controls.object.position.set(0, 0, 5);
+                        break;
+                    case 'Saturn':
+                        solarSystemObj.children[7].children[0].add(camera);
+                        controls.object.position.set(0, 0, 4);
+                        break;
+                    case 'Uranus':
+                        solarSystemObj.children[8].children[0].add(camera);
+                        controls.object.position.set(0, 0, 1);
+                        break;
+                    case 'Neptune':
+                        solarSystemObj.children[9].children[0].add(camera);
+                        controls.object.position.set(0, 0, 1);
+                        break;
+                    case 'Pluto':
+                        solarSystemObj.children[10].children[0].add(camera);
+                        controls.object.position.set(0, 0, 0.2);
+                        break;
+                }
+            }
+        );
 
         console.log(anim_loop.animated_objects);
         const resizer = new Resizer(container, camera, renderer);
