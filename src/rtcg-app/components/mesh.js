@@ -1,29 +1,26 @@
-import { Object3D, UniformsUtils, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, TextureLoader, BackSide, ShaderMaterial, ShaderLib, SphereBufferGeometry, MathUtils, Euler, MeshPhongMaterial, BufferGeometry, BufferAttribute, PointsMaterial, Points, BoxGeometry } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
-import { createHaloShader, createFresnelShader, vertexShaderFresnel, fragmentShaderFresnel, createPerlinNoiseShader } from '../systems/shader.js';
+import { Object3D, UniformsUtils, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, TextureLoader, BackSide, ShaderMaterial, ShaderLib, SphereBufferGeometry, SphereGeometry, MathUtils, Euler, MeshPhongMaterial, BufferGeometry, BufferAttribute, PointsMaterial, Points, BoxGeometry } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import { createHaloShader, createFresnelShader, vertexShaderFresnel, fragmentShaderFresnel, createStarShader } from '../systems/shader.js';
 
 let loader = new TextureLoader();
 let rad_perSecond = MathUtils.degToRad(25);
 
-function createBox(width, height, depth) {
+function createSkyBox(skyDomeRadius, height, depth) {
 
-    const geometry = new BoxGeometry(width, height, depth);
-    // const geometry = new BufferGeometry;
-    // const mat = createPerlinNoiseShader();
+    const geometry = new SphereGeometry(skyDomeRadius, height, depth);
 
-    const particlesCount = 10000000;
-    const posArray = new Float32Array(particlesCount * 3);
+
+    // const particlesCount = 10000000;
+    // const posArray = new Float32Array(particlesCount * 3);
     
-    for (let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * (Math.random() * 10);
-    }
+    // for (let i = 0; i < particlesCount * 3; i++) {
+    //     posArray[i] = (Math.random() - 0.5) * (Math.random() * 10);
+    // }
 
-    geometry.setAttribute('position', new BufferAttribute(posArray, 3));
+    // geometry.setAttribute('position', new BufferAttribute(posArray, 3));
 
-    const mat = new PointsMaterial({size: 0.005});
-    // mat.side = BackSide;
+    const mat = createStarShader(skyDomeRadius);
 
-    const box = new Points(geometry, mat);
-
+    const box = new Mesh(geometry, mat);
     return box;
 }
 
@@ -139,4 +136,4 @@ function createSolarSystem(solarSystem) {
     return solarSystemObj3D;
 }
 
-export { createObject3D, createSphere, createSolarSystem, createBox }
+export { createObject3D, createSphere, createSolarSystem, createSkyBox }

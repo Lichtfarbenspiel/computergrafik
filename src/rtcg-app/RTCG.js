@@ -1,5 +1,5 @@
 import { createCamera } from './components/camera.js';
-import { createBox, createObject3D, createSolarSystem, createSphere } from './components/mesh.js';
+import { createSkyBox, createObject3D, createSolarSystem, createSphere } from './components/mesh.js';
 import { createScene } from './components/scene.js';
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/Resizer.js';
@@ -31,7 +31,7 @@ class RTCG {
 
         container.append(renderer.domElement);
 
-        const hemisphereLight = createHemisphereLight(0xffffff, 0xffffff, 3);
+        const hemisphereLight = createHemisphereLight(0xffffff, 0xffffff, 2.5);
         hemisphereLight.decay = 2;
 
         const pointLight = createPointLight(0xfff6e4, 1.2, 1500);
@@ -283,13 +283,16 @@ class RTCG {
         };
 
         // Skybox
-
-        const skybox = createBox(1000000, 1000000, 1000000);
+        const skyDomeRadius = 1500;
+        const skybox = createSkyBox(skyDomeRadius, 30, 30);
 
         solarSystemObj = createSolarSystem(solarSystem);
         solarSystemObj.children[0].children[0].add(pointLight);
-        scene.add(skybox, solarSystemObj);
 
+        skybox.add(solarSystemObj);
+        scene.add(skybox);
+
+        console.log(skybox.position);
         // Controls
         controls = createControls(camera, renderer.domElement);
         controls.enablePan = false;  

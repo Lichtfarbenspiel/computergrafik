@@ -2,13 +2,15 @@ import { PerspectiveCamera } from 'https://unpkg.com/three@0.127.0/build/three.m
 
 function createCamera() {
     const camera = new PerspectiveCamera(
-        35,  //FOV
-        1,   //AspectRatio
-        0.1, //NearClip
-        100, //FarClip
+        35, 1, 0.1, 3000
+
+        // 35,  //FOV
+        // 1,   //AspectRatio
+        // 0.1, //NearClip
+        // 100, //FarClip
     );
 
-    camera.position.set(0.03, 0, 0);
+    camera.position.set(0, 0, 0);
     camera.lookAt(0, 0, 0);
     camera.up.set(0, 0, 1);
 
