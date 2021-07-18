@@ -1,11 +1,12 @@
 import { createCamera } from './components/camera.js';
-import { createObject3D, createSolarSystem, createSphere } from './components/mesh.js';
+import { createBox, createObject3D, createSolarSystem, createSphere } from './components/mesh.js';
 import { createScene } from './components/scene.js';
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/Resizer.js';
 import { createAmbientLight, createDirectionalLight, createHemisphereLight, createPointLight } from './components/light.js';
 import { Anim_loop } from './systems/anim_loop.js';
-import { createControls, setCameraDistance } from './systems/control.js';
+import { createControls } from './systems/control.js';
+import { Vector3 } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
 // import * as dat from 'https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.js';
 
 
@@ -30,18 +31,20 @@ class RTCG {
 
         container.append(renderer.domElement);
 
-        const hemisphereLight = createHemisphereLight(0xffffbb, 0x080820, 1);
+        const hemisphereLight = createHemisphereLight(0xffffff, 0xffffff, 3);
+        hemisphereLight.decay = 2;
 
-        const directLight = createDirectionalLight(0xfffff, 1);
-        directLight.position.set(0, -100, -100);
+        const pointLight = createPointLight(0xfff6e4, 1.2, 1500);
+        pointLight.decay = 2;
+        // directLight.position.set(0, -100, -100);
 
-        const directLight2 = createDirectionalLight(0xFFff80, 1);
-        directLight2.position.set(100, -100, 100);
+        // const directLight2 = createDirectionalLight(0xFFff80, 1);
+        // directLight2.position.set(100, -100, 100);
 
-        scene.add(hemisphereLight, directLight);
+        scene.add(hemisphereLight);
 
-        const ambientLight = createAmbientLight(0xffffbb);
-        scene.add(ambientLight);
+        // const ambientLight = createAmbientLight(0xffffff);
+        // scene.add(ambientLight);
 
         
        // SOLAR SYSTEM
@@ -55,7 +58,7 @@ class RTCG {
                 texture: './../../img/sun.jpg',
                 material: null,
                 speed:  0.2160000, // 25 Days rotation
-                metalness: 0.2,
+                metalness: 1,
                 roughness: 0,
                 specularmap: null,
                 normalmap: null,
@@ -72,13 +75,13 @@ class RTCG {
                 texture: null,
                 material: null,
                 speed: 0, // 25 Days
-                metalness: 0.2,
+                metalness: 1,
                 roughness: 0,
                 specularmap: null,
                 normalmap: null,
                 bumpmap: null,
-                transparent: false,
-                opacity: null,
+                transparent: true,
+                opacity: 0,
                 orbitspeed: 0
             },
             mercury: {
@@ -106,7 +109,7 @@ class RTCG {
                 height: 28,
                 texture: './../../img/venus.jpg',
                 material: null,
-                speed: 0.0018111111111111, // 1000 m/s 
+                speed: -0.0018111111111111, // 1000 m/s 
                 metalness: 1,
                 roughness: 0,
                 specularmap: null,
@@ -140,7 +143,7 @@ class RTCG {
                     height: 28,
                     texture: './../../img/earth_clouds.jpg',
                     material: null,
-                    speed: 0.2,
+                    speed: 0.5,
                     metalness: 0,
                     roughness: 0,
                     specularmap: null,
@@ -157,7 +160,7 @@ class RTCG {
                     height: 24,
                     texture: './../../img/moon2.jpg',
                     material: null,
-                    speed: 0,
+                    speed: 0.0362222222222222,
                     metalness: 0,
                     roughness: 0.6,
                     specularmap: './../../img/moon_specular_map.jpg',
@@ -279,12 +282,20 @@ class RTCG {
             }
         };
 
+        // Skybox
+
+        const skybox = createBox(1000000, 1000000, 1000000);
+
         solarSystemObj = createSolarSystem(solarSystem);
-        scene.add(solarSystemObj);
+        solarSystemObj.children[0].children[0].add(pointLight);
+        scene.add(skybox, solarSystemObj);
 
         // Controls
         controls = createControls(camera, renderer.domElement);
-        controls.enablePan = true;  
+        controls.enablePan = false;  
+
+        // let viewVector = new Vector3().subVectors( camera.position, solarSystemObj.children[1].getWorldPosition());
+        // solarSystemObj.children[1].material.uniforms.viewVector.value = viewVector;
 
 
         anim_loop.animated_objects.push(solarSystemObj.children[0].children[0]);
@@ -293,25 +304,23 @@ class RTCG {
 
         for (let i = 2; i < solarSystemObj.children.length; i++) {
             solarSystemObj.children[i].children.forEach(element => {
-                anim_loop.animated_objects.push(element);
+                anim_loop.animated_objects.push(element.children[0]);
                 if ( i == 4 ) {
-                    console.log("Mond?: " + solarSystemObj.children[4].children[0].children[1].children[0].uuid);
-                    anim_loop.animated_objects.push(solarSystemObj.children[4].children[0].children[1]);
+                    // console.log("Mond?: " + solarSystemObj.children[4].children[0].children[1].children[0].uuid);
+                    anim_loop.animated_objects.push(element.children[0].children[1], element.children[0].children[1].children[0]);
                 }
            });
             anim_loop.animated_objects.push(solarSystemObj.children[i]);
         }
         
 
-        var props = {
-            hideBars:false,
-            // depthZ_Fraction:0.015,
-            // barColor: '#FFFFFF',
+        var params  = {
+            hideBars: false,
             planets:'Vertical'
         };
 
-    
-        const planets = gui.add(props, 'planets', 
+        // const planetsSpeed = gui.add(params, 0, 10, 0.5).name('Planets Speed').listen();
+        const planets = gui.add(params , 'planets', 
             ['Sun', 'Mercury', 'Venus', 'Earth', 'Moon', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'])
             .name('planets')
             .listen();
@@ -327,20 +336,21 @@ class RTCG {
                         break;
                     case 'Mercury':
                         solarSystemObj.children[2].children[0].add(camera);
-                        controls.object.position.set(0, 0, 1);
+                        controls.object.position.set(0, 0, 0.5);
                         break;
                     case 'Venus':
                         solarSystemObj.children[3].children[0].add(camera);
-                        controls.object.position.set(0, 0, 1);
+                        controls.object.position.set(0, 0, 0.5);
                         break;
                     case 'Earth':
                         console.log( solarSystemObj.children[4].children[0].uuid);
                         solarSystemObj.children[4].children[0].add(camera);
-                        controls.object.position.set(0, 0, 1);
+                        controls.object.position.set(0, 0, 0.7);
+                        controls.object.rotation.set(0, 0, 0);
                         break;
                     case 'Moon':
-                        solarSystemObj.children[4].children[0].children[1].children[0].add(camera);
-                        controls.object.position.set(0, 0, 0.5);
+                        solarSystemObj.children[4].children[0].children[0].children[1].children[0].add(camera);
+                        controls.object.position.set(0, 0, 0.15);
                         break;
                     case 'Mars':
                         solarSystemObj.children[5].children[0].add(camera);

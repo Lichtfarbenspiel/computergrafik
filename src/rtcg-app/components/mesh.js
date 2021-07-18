@@ -1,8 +1,31 @@
-import { Object3D, BoxBufferGeometry, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, TextureLoader, FrontSide, PlaneBufferGeometry, SphereBufferGeometry, MathUtils, Euler } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
-import { createHaloShader } from '../systems/shader.js';
+import { Object3D, UniformsUtils, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, TextureLoader, BackSide, ShaderMaterial, ShaderLib, SphereBufferGeometry, MathUtils, Euler, MeshPhongMaterial, BufferGeometry, BufferAttribute, PointsMaterial, Points, BoxGeometry } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import { createHaloShader, createFresnelShader, vertexShaderFresnel, fragmentShaderFresnel, createPerlinNoiseShader } from '../systems/shader.js';
 
 let loader = new TextureLoader();
 let rad_perSecond = MathUtils.degToRad(25);
+
+function createBox(width, height, depth) {
+
+    const geometry = new BoxGeometry(width, height, depth);
+    // const geometry = new BufferGeometry;
+    // const mat = createPerlinNoiseShader();
+
+    const particlesCount = 10000000;
+    const posArray = new Float32Array(particlesCount * 3);
+    
+    for (let i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * (Math.random() * 10);
+    }
+
+    geometry.setAttribute('position', new BufferAttribute(posArray, 3));
+
+    const mat = new PointsMaterial({size: 0.005});
+    // mat.side = BackSide;
+
+    const box = new Points(geometry, mat);
+
+    return box;
+}
 
 function createObject3D(speed = 0) {
     const obj3D = new Object3D();
@@ -20,13 +43,28 @@ function createObject3D(speed = 0) {
 function createSphere(radius, widthSegments, heightSegments, texture = null, material = null, speed = 0, metalness = 0.5, roughness = 0.5, specularmap = null, normalmap = null, bumpmap = null, transparent = false, opacity = 1) {
     const geometry = new SphereBufferGeometry(radius, widthSegments, heightSegments);
     var mat;
-    if (texture) {
-        mat = new MeshPhysicalMaterial( {map: loader.load(texture)} );
 
-        // material.specularMap = loader.load(specularmap);
+    var shader = createFresnelShader();
+    // var uniforms = UniformsUtils.clone(shader.uniforms);
+    // // uniforms[ "tCube" ].value = textureCube;
+
+    // var parameters = {
+    //     fragmentShader: shader.fragmentShader,
+    //     vertexShader: shader.vertexShader,
+    //     uniforms: uniforms
+    // };
+
+
+    if (texture) {
+        mat = new MeshPhongMaterial({ map: loader.load(texture) });
+
+        mat.uniforms = shader.uniforms;
+        mat.vertexShader = shader.vertexShader;
+        mat.fragmentShader = shader.fragmentShader;
         mat.normalMap = loader.load(normalmap);
         mat.metalnessMap = loader.load(specularmap);
         mat.bumpMap = loader.load(bumpmap);
+        mat.specularMap = loader.load(specularmap);
     }
 
     if (material) {
@@ -67,22 +105,27 @@ function createSolarSystem(solarSystem) {
                     rotatingObj.add(satellite);
                     break;
                 case "earth":
+                    camObj.position.set(element.distance/30, 0, 0);
                     satellite =  createSphere(element.diameter * 5, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
-                    satellite.position.set(element.distance/30, 0, 0);
+                    
+
                     const clouds =  createSphere(element.clouds.diameter * 5, element.clouds.width, element.clouds.height, element.clouds.texture, element.clouds.material, element.clouds.speed, element.clouds.metalness, element.clouds.roughness, element.clouds.specularmap, element.clouds.normalmap, element.clouds.bumpmap, element.clouds.transparent, element.clouds.opacity);
                     const earthObj3D = new createObject3D(element.moon.orbitspeed);
                     const moon =  createSphere(element.moon.diameter * 5, element.moon.width, element.moon.height, element.moon.texture, element.moon.material, element.moon.speed, element.moon.metalness, element.moon.roughness, element.moon.specularmap, element.moon.normalmap, element.moon.bumpmap, element.moon.transparent, element.moon.opacity);
                     moon.position.set(element.moon.distance/10, 0, 0);
+                    
                     earthObj3D.add(moon);
                     satellite.add(clouds, earthObj3D);
-                    rotatingObj.add(satellite);
-                    solarSystemObj3D.children[0].add(rotatingObj);
+                    camObj.add(satellite);
+                    rotatingObj.add(camObj);
+                    solarSystemObj3D.add(rotatingObj);
                     break;
                 case "planet":
+                    camObj.position.set(element.distance/30, 0, 0);
                     satellite =  createSphere(element.diameter * 5, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
-                    satellite.position.set(element.distance/30, 0, 0);
-                    rotatingObj.add(satellite);
-                    solarSystemObj3D.children[0].add(rotatingObj);
+                    camObj.add(satellite);
+                    rotatingObj.add(camObj);
+                    solarSystemObj3D.add(rotatingObj);
                     break;
             }
             solarSystemObj3D.add(rotatingObj);
@@ -96,4 +139,4 @@ function createSolarSystem(solarSystem) {
     return solarSystemObj3D;
 }
 
-export { createObject3D, createSphere, createSolarSystem }
+export { createObject3D, createSphere, createSolarSystem, createBox }
