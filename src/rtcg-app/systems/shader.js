@@ -125,7 +125,7 @@ function createStarShader(skyDomeRadius) {
         uniforms: { 
           skyRadius: { value: skyDomeRadius },
           env_c1: { value: new Color(0x050a12) },
-          env_c2: { value: new Color(0x074341) },
+          env_c2: { value: new Color(0x021413) },
           noiseOffset: { value: new Vector3(100.01, 100.01, 100.01) },
           starSize: { value: 0.003 },
           starDensity: { value: 0.12 },
@@ -227,7 +227,7 @@ function fragmentShaderFresnel() {
   varying float vReflectionFactor;
 
   void main() {
-    gl_FragColor = vec4(mix(color2, color1, vec3(clamp( vReflectionFactor, 0.0, 1.0 ))), 1.0);
+    gl_FragColor = vec4(mix(color2, color1, vec3(clamp( vReflectionFactor, 0.0, 1.0 ))), 0.25);
   }
   `
 }
@@ -250,11 +250,11 @@ function createFresnelShader() {
         },
         fresnelScale: {
           type: "f",
-          value: 1.0,
+          value: 1.5,
         },
         fresnelPower: {
           type: 'f',
-          value: 2.0,
+          value: 2.5,
         }
       },
       vertexShader: vertexShaderFresnel(),

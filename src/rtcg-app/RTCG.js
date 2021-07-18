@@ -27,7 +27,7 @@ class RTCG {
         scene = createScene();
         renderer = createRenderer();
         anim_loop = new Anim_loop(camera, scene, renderer);
-        gui = new dat.GUI();
+        gui = new dat.GUI({autoPlace: true});
 
         container.append(renderer.domElement);
 
@@ -339,6 +339,8 @@ class RTCG {
                         break;
                     case 'Mercury':
                         solarSystemObj.children[2].children[0].add(camera);
+                        var target = new Vector3();
+                        console.log(solarSystemObj.children[2].children[0].getWorldPosition(target));
                         controls.object.position.set(0, 0, 0.5);
                         break;
                     case 'Venus':
@@ -357,7 +359,7 @@ class RTCG {
                         break;
                     case 'Mars':
                         solarSystemObj.children[5].children[0].add(camera);
-                        controls.object.position.set(0, 0, 1);
+                        controls.object.position.set(0, 0, 0.4);
                         break;
                     case 'Jupiter':
                         solarSystemObj.children[6].children[0].add(camera);
@@ -377,7 +379,7 @@ class RTCG {
                         break;
                     case 'Pluto':
                         solarSystemObj.children[10].children[0].add(camera);
-                        controls.object.position.set(0, 0, 0.2);
+                        controls.object.position.set(0, 0, 0.15);
                         break;
                 }
             }

@@ -13,6 +13,7 @@ function createControls(camera, canvas) {
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
     controls.autoRotate = false;
+    controls.maxDistance = 1500;
 
     
     
