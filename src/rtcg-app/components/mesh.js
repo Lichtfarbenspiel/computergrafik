@@ -1,5 +1,5 @@
-import { Object3D, UniformsUtils, Mesh, MeshPhysicalMaterial, MeshBasicMaterial, TextureLoader, BackSide, ShaderMaterial, ShaderLib, SphereBufferGeometry, SphereGeometry, MathUtils, Euler, MeshPhongMaterial, BufferGeometry, BufferAttribute, PointsMaterial, Points, BoxGeometry } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
-import { createHaloShader, createFresnelShader, vertexShaderFresnel, fragmentShaderFresnel, createStarShader } from '../systems/shader.js';
+import { Object3D, Mesh, TextureLoader, SphereBufferGeometry, SphereGeometry, MathUtils, MeshPhongMaterial } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import { createHaloShader, createFresnelShader, createStarShader } from '../systems/shader.js';
 
 let loader = new TextureLoader();
 let rad_perSecond = MathUtils.degToRad(25);
@@ -7,16 +7,6 @@ let rad_perSecond = MathUtils.degToRad(25);
 function createSkyBox(skyDomeRadius, height, depth) {
 
     const geometry = new SphereGeometry(skyDomeRadius, height, depth);
-
-
-    // const particlesCount = 10000000;
-    // const posArray = new Float32Array(particlesCount * 3);
-    
-    // for (let i = 0; i < particlesCount * 3; i++) {
-    //     posArray[i] = (Math.random() - 0.5) * (Math.random() * 10);
-    // }
-
-    // geometry.setAttribute('position', new BufferAttribute(posArray, 3));
 
     const mat = createStarShader(skyDomeRadius);
 
@@ -28,9 +18,6 @@ function createObject3D(speed = 0) {
     const obj3D = new Object3D();
     obj3D.tick = (delta) => {
         // Erhöhung der Werte pro Frame
-        // sphere.rotation.z += rad_perSecond * delta;
-        // sphere.rotation.x += rad_perSecond * delta;
-        // sphere.rotation.y += rad_perSecond * delta;
         obj3D.rotateY(rad_perSecond * delta * speed);
     };
 
@@ -42,15 +29,6 @@ function createSphere(radius, widthSegments, heightSegments, texture = null, mat
     var mat;
 
     var shader = createFresnelShader();
-    // var uniforms = UniformsUtils.clone(shader.uniforms);
-    // // uniforms[ "tCube" ].value = textureCube;
-
-    // var parameters = {
-    //     fragmentShader: shader.fragmentShader,
-    //     vertexShader: shader.vertexShader,
-    //     uniforms: uniforms
-    // };
-
 
     if (texture) {
         mat = new MeshPhongMaterial({ map: loader.load(texture) });
@@ -77,9 +55,6 @@ function createSphere(radius, widthSegments, heightSegments, texture = null, mat
 
     sphere.tick = (delta) => {
         // Erhöhung der Werte pro Frame
-        // sphere.rotation.z += rad_perSecond * delta;
-        // sphere.rotation.x += rad_perSecond * delta;
-        // sphere.rotation.y += rad_perSecond * delta;
         sphere.rotateY(rad_perSecond * delta * speed);
     };
 

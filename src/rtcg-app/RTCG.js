@@ -1,13 +1,11 @@
 import { createCamera } from './components/camera.js';
-import { createSkyBox, createObject3D, createSolarSystem, createSphere } from './components/mesh.js';
+import { createSkyBox, createSolarSystem } from './components/mesh.js';
 import { createScene } from './components/scene.js';
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/Resizer.js';
-import { createAmbientLight, createDirectionalLight, createHemisphereLight, createPointLight } from './components/light.js';
+import { createHemisphereLight, createPointLight } from './components/light.js';
 import { Anim_loop } from './systems/anim_loop.js';
 import { createControls } from './systems/control.js';
-import { Vector3 } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
-// import * as dat from 'https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.js';
 
 
 let camera;

@@ -1,4 +1,4 @@
-import { ShaderMaterial, BackSide, AdditiveBlending, Color, Vector3, FrontSide, DoubleSide } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import { ShaderMaterial, AdditiveBlending, Color, Vector3, FrontSide, DoubleSide } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
 
 // Stars Shader source: https://discourse.threejs.org/t/starry-shader-for-sky-sphere/7578/16
 function vertexShaderStars() {
@@ -252,4 +252,4 @@ function createFresnelShader() {
 }
 
 
-export { createHaloShader, createFresnelShader, fragmentShaderFresnel, vertexShaderFresnel, createStarShader }
+export { createHaloShader, createFresnelShader, createStarShader }

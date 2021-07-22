@@ -2,8 +2,6 @@ import { WebGLRenderer } from 'https://unpkg.com/three@0.127.0/build/three.modul
 
 function createRenderer() {
 
-    // const renderer = new WebGLRenderer();
-
     const renderer = new WebGLRenderer({ antialias: true });
     renderer.setAnimationLoop(() => {
         renderer.render(scene, camera);
