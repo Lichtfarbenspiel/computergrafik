@@ -24,6 +24,22 @@ class RTCG {
 
     constructor(container) {
        // SOLAR SYSTEM
+        const solarSystemParams = {
+            sun: {
+                diameter: 2
+            },
+            planets: {
+                speed: 0,
+                distance: 30,
+                diameter: 5
+            },
+            moon: {
+                distance: 10,
+                diameter: 5
+            },
+            orbitspeed: 100
+        }
+
        const solarSystem = {
             sun: {
                 type: "sun",
@@ -278,7 +294,7 @@ class RTCG {
         const skyDomeRadius = 1500;
         const skybox = createSkyBox(skyDomeRadius, 30, 30);
 
-        solarSystemObj = createSolarSystem(solarSystem);
+        solarSystemObj = createSolarSystem(solarSystem, solarSystemParams);
         solarSystemObj.children[0].children[0].add(pointLight);
 
         skybox.add(solarSystemObj);
@@ -326,57 +342,68 @@ class RTCG {
                         solarSystemObj.children[0].add(camera);
                         controls.object.position.set(0, 0, 5);
                         controls.enableRotate = true;
+                        controls.enableZoom = true;
                         break;
                     case 'Mercury':
                         solarSystemObj.children[2].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.5);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Venus':
                         solarSystemObj.children[3].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.5);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Earth':
                         console.log( solarSystemObj.children[4].children[0].uuid);
                         solarSystemObj.children[4].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.7);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Moon':
                         solarSystemObj.children[4].children[0].children[0].children[1].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.15);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Mars':
                         solarSystemObj.children[5].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.4);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Jupiter':
                         solarSystemObj.children[6].children[0].add(camera);
                         controls.object.position.set(0, 0, 5);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Saturn':
                         solarSystemObj.children[7].children[0].add(camera);
                         controls.object.position.set(0, 0, 4);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Uranus':
                         solarSystemObj.children[8].children[0].add(camera);
                         controls.object.position.set(0, 0, 1);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Neptune':
                         solarSystemObj.children[9].children[0].add(camera);
                         controls.object.position.set(0, 0, 1);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                     case 'Pluto':
                         solarSystemObj.children[10].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.15);
                         controls.enableRotate = false;
+                        controls.enableZoom = false;
                         break;
                 }
             }
