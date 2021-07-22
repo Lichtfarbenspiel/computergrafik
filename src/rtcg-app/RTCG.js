@@ -266,7 +266,7 @@ class RTCG {
         container.append(renderer.domElement);
 
         // LIGHTS
-        const hemisphereLight = createHemisphereLight(0xffffff, 0xffffff, 1.5);
+        const hemisphereLight = createHemisphereLight(0xffffff, 0xffffff, 2);
         hemisphereLight.decay = 2;
         scene.add(hemisphereLight);
 
@@ -311,7 +311,7 @@ class RTCG {
         };
 
         
-        const planets = gui.add(params , 'planets', 
+        const planets = gui.add(params, 'planets', 
             ['Sun', 'Mercury', 'Venus', 'Earth', 'Moon', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'])
             .name('planets')
             .listen();
