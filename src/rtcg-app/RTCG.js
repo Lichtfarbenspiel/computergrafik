@@ -26,18 +26,18 @@ class RTCG {
        // SOLAR SYSTEM
         const solarSystemParams = {
             sun: {
-                diameter: 2
+                diameter: 2 // factor diameter is divided by
             },
             planets: {
                 speed: 0,
-                distance: 30,
-                diameter: 5
+                distance: 30, // factor distance is devided by 
+                diameter: 5 // factor diameter is multiplied by
             },
             moon: {
-                distance: 10,
-                diameter: 5
+                distance: 10, // factor distance is devided by 
+                diameter: 5 // factor diameter is multiplied by
             },
-            orbitspeed: 100
+            orbitspeed: 100 // factor each planet's orbit speed is devided by 
         }
 
        const solarSystem = {
