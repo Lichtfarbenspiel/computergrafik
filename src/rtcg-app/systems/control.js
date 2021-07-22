@@ -8,19 +8,12 @@ function createControls(camera, canvas) {
     const controls = new OrbitControls(camera, canvas);
 
     controls.enableDampening = true;
-    controls.tick = () => controls.update();
-
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
     controls.autoRotate = false;
     controls.maxDistance = 1500;
 
-    
-    
-    // controls.enabled = false;
-    // controls.saveState();
-    // controls.reset();
-    // controls.dispose();
+    controls.tick = () => controls.update();
 
     return controls;
 }

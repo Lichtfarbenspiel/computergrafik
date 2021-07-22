@@ -91,25 +91,31 @@ function createSolarSystem(solarSystem) {
     const solarSystemObj3D = createObject3D(0);
 
     Object.values(solarSystem).forEach(element => {
-        var rotatingObj = createObject3D(element.orbitspeed /100);
+
+        var rotatingObj = createObject3D(element.orbitspeed /100); // Used for planets orbiting around sun 
+        
         if (element.type != "halo") {
             var satellite;
-            var camObj = new createObject3D();
-            var fresnelObj;
+            var camObj = new createObject3D(); // Camera will be set as child when switching positions to selected planets
+            var fresnelObj; // Used for Fresnel Effect on Planets
 
-            // const satellite =  createSphere(element.diameter/2, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
             switch (element.type) {
                 case "sun":
+                    // Create Sun
                     satellite =  createSphere(element.diameter/2 , element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
                     rotatingObj.add(satellite);
                     break;
                 case "earth":
+                    // Create Earth
                     camObj.position.set(element.distance/30, 0, 0);
                     satellite =  createSphere(element.diameter * 5, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
                     fresnelObj =  createSphere(element.diameter * 5, element.width, element.height, null, createFresnelShader(), null, null, null, null, null, null, null, null);
 
+                    // Create Clouds
                     const clouds =  createSphere(element.clouds.diameter * 5, element.clouds.width, element.clouds.height, element.clouds.texture, element.clouds.material, element.clouds.speed, element.clouds.metalness, element.clouds.roughness, element.clouds.specularmap, element.clouds.normalmap, element.clouds.bumpmap, element.clouds.transparent, element.clouds.opacity);
                     const earthObj3D = new createObject3D(element.moon.orbitspeed);
+                    
+                    // Create Moon
                     const moon =  createSphere(element.moon.diameter * 5, element.moon.width, element.moon.height, element.moon.texture, element.moon.material, element.moon.speed, element.moon.metalness, element.moon.roughness, element.moon.specularmap, element.moon.normalmap, element.moon.bumpmap, element.moon.transparent, element.moon.opacity);
                     moon.position.set(element.moon.distance/10, 0, 0);
                     const fresnelObjMoon =  createSphere(element.moon.diameter * 5, element.moon.width, element.moon.height, null, createFresnelShader(), null, null, null, null, null, null, null, null);
@@ -122,6 +128,7 @@ function createSolarSystem(solarSystem) {
                     solarSystemObj3D.add(rotatingObj);
                     break;
                 case "planet":
+                    // Create Planets
                     camObj.position.set(element.distance/30, 0, 0);
                     satellite =  createSphere(element.diameter * 5, element.width, element.height, element.texture, element.material, element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
                     fresnelObj =  createSphere(element.diameter * 5, element.width, element.height, null, createFresnelShader(), null, null, null, null, null, null, null, null);
@@ -133,6 +140,7 @@ function createSolarSystem(solarSystem) {
             }
             solarSystemObj3D.add(rotatingObj);
         } else {
+            // Create Sun Halo
             const satellite =  createSphere(element.diameter/2 , element.width, element.height, element.texture, createHaloShader(), element.speed, element.metalness, element.roughness, element.specularmap, element.normalmap, element.bumpmap, element.transparent, element.opacity);
             solarSystemObj3D.add(satellite);
         }

@@ -23,32 +23,7 @@ class RTCG {
     // create instance of RTCG App
 
     constructor(container) {
-        camera = createCamera();
-        scene = createScene();
-        renderer = createRenderer();
-        anim_loop = new Anim_loop(camera, scene, renderer);
-        gui = new dat.GUI({autoPlace: true});
-
-        container.append(renderer.domElement);
-
-        const hemisphereLight = createHemisphereLight(0xffffff, 0xffffff, 2.5);
-        hemisphereLight.decay = 2;
-
-        const pointLight = createPointLight(0xfff6e4, 1.2, 1500);
-        pointLight.decay = 2;
-        // directLight.position.set(0, -100, -100);
-
-        // const directLight2 = createDirectionalLight(0xFFff80, 1);
-        // directLight2.position.set(100, -100, 100);
-
-        scene.add(hemisphereLight);
-
-        // const ambientLight = createAmbientLight(0xffffff);
-        // scene.add(ambientLight);
-
-        
        // SOLAR SYSTEM
-
        const solarSystem = {
             sun: {
                 type: "sun",
@@ -69,7 +44,7 @@ class RTCG {
             },
             halo: {
                 type: "halo",
-                diameter: 1 * 1.5,
+                diameter: 1.6,
                 width: 32,
                 height: 32,
                 texture: null,
@@ -282,7 +257,24 @@ class RTCG {
             }
         };
 
-        // Skybox
+        camera = createCamera();
+        scene = createScene();
+        renderer = createRenderer();
+        anim_loop = new Anim_loop(camera, scene, renderer);
+        gui = new dat.GUI({autoPlace: true});
+
+        container.append(renderer.domElement);
+
+        // LIGHTS
+        const hemisphereLight = createHemisphereLight(0xffffff, 0xffffff, 1.5);
+        hemisphereLight.decay = 2;
+        scene.add(hemisphereLight);
+
+        const pointLight = createPointLight(0xFBD3A8, 1.7, 2000); // Light that is being emmited by sun
+        pointLight.decay = 2;
+
+
+        // SKYBOX
         const skyDomeRadius = 1500;
         const skybox = createSkyBox(skyDomeRadius, 30, 30);
 
@@ -292,31 +284,28 @@ class RTCG {
         skybox.add(solarSystemObj);
         scene.add(skybox);
 
-        console.log(skybox.position);
-        // Controls
+        // CONTROLS
         controls = createControls(camera, renderer.domElement);
         controls.enablePan = false;  
 
-        // let viewVector = new Vector3().subVectors( camera.position, solarSystemObj.children[1].getWorldPosition());
-        // solarSystemObj.children[1].material.uniforms.viewVector.value = viewVector;
 
-
-        anim_loop.animated_objects.push(solarSystemObj.children[0].children[0]);
-
+        // ADD SOLAR OBJECTS TO ANIMATION LOOP
+        anim_loop.animated_objects.push(solarSystemObj.children[0].children[0]); // add sun rotation Object to animation loop
         console.log(solarSystemObj.children.length);
+
 
         for (let i = 2; i < solarSystemObj.children.length; i++) {
             solarSystemObj.children[i].children.forEach(element => {
-                anim_loop.animated_objects.push(element.children[0]);
+                anim_loop.animated_objects.push(element.children[0]); // add each planets's sattelite object to animation Loop (planet rotation)
                 if ( i == 4 ) {
-                    // console.log("Mond?: " + solarSystemObj.children[4].children[0].children[1].children[0].uuid);
-                    anim_loop.animated_objects.push(element.children[0].children[1], element.children[0].children[1].children[0]);
+                    anim_loop.animated_objects.push(element.children[0].children[1], element.children[0].children[1].children[0]); // add moon's sattelite object to animation Loop
                 }
            });
-            anim_loop.animated_objects.push(solarSystemObj.children[i]);
+            anim_loop.animated_objects.push(solarSystemObj.children[i]); // add each planets's rotation Object to animation Loop (planet orbit)
         }
         
 
+        // CREATE GUI
         var params  = {
             hideBars: false,
             planets:'Vertical'
@@ -328,6 +317,7 @@ class RTCG {
             .name('planets')
             .listen();
 
+
         // Jump to selected planet    
         planets.onChange(
             function(planet) {
@@ -336,50 +326,59 @@ class RTCG {
                     case 'Sun':
                         solarSystemObj.children[0].add(camera);
                         controls.object.position.set(0, 0, 5);
+                        controls.enableRotate = true;
+                        controls.update();
                         break;
                     case 'Mercury':
                         solarSystemObj.children[2].children[0].add(camera);
-                        var target = new Vector3();
-                        console.log(solarSystemObj.children[2].children[0].getWorldPosition(target));
                         controls.object.position.set(0, 0, 0.5);
+                        controls.enableRotate = false;
                         break;
                     case 'Venus':
                         solarSystemObj.children[3].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.5);
+                        controls.enableRotate = false;
                         break;
                     case 'Earth':
                         console.log( solarSystemObj.children[4].children[0].uuid);
                         solarSystemObj.children[4].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.7);
-                        controls.object.rotation.set(0, 0, 0);
+                        controls.enableRotate = false;
                         break;
                     case 'Moon':
                         solarSystemObj.children[4].children[0].children[0].children[1].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.15);
+                        controls.enableRotate = false;
                         break;
                     case 'Mars':
                         solarSystemObj.children[5].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.4);
+                        controls.enableRotate = false;
                         break;
                     case 'Jupiter':
                         solarSystemObj.children[6].children[0].add(camera);
                         controls.object.position.set(0, 0, 5);
+                        controls.enableRotate = false;
                         break;
                     case 'Saturn':
                         solarSystemObj.children[7].children[0].add(camera);
                         controls.object.position.set(0, 0, 4);
+                        controls.enableRotate = false;
                         break;
                     case 'Uranus':
                         solarSystemObj.children[8].children[0].add(camera);
                         controls.object.position.set(0, 0, 1);
+                        controls.enableRotate = false;
                         break;
                     case 'Neptune':
                         solarSystemObj.children[9].children[0].add(camera);
                         controls.object.position.set(0, 0, 1);
+                        controls.enableRotate = false;
                         break;
                     case 'Pluto':
                         solarSystemObj.children[10].children[0].add(camera);
                         controls.object.position.set(0, 0, 0.15);
+                        controls.enableRotate = false;
                         break;
                 }
             }
@@ -400,10 +399,6 @@ class RTCG {
     stop() {
         anim_loop.stop();
     }
-
-    // updateControls() {
-    //     console.log("test");
-    // }
 }
 
 export { RTCG };

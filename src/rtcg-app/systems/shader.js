@@ -1,4 +1,4 @@
-import { ShaderMaterial, BackSide, AdditiveBlending, Color, Vector3, DoubleSide } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import { ShaderMaterial, BackSide, AdditiveBlending, Color, Vector3, FrontSide, DoubleSide } from 'https://unpkg.com/three@0.127.0/build/three.module.js';
 
 // Stars Shader source: https://discourse.threejs.org/t/starry-shader-for-sky-sphere/7578/16
 function vertexShaderStars() {
@@ -141,39 +141,27 @@ function createStarShader(skyDomeRadius) {
 
 function vertexShaderHalo() {
   return `
-    // uniform vec3 viewVector;
-    // varying float intensity;
-    // void main() {
-    //   gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
-    //   vec3 actual_normal = vec3(modelMatrix * vec4(normal, 0.0));
-    //   intensity = pow( dot(normalize(viewVector), actual_normal), 6.0 );
-    // }
-    varying vec3 vUv; 
-
-    void main() {
-      vUv = position; 
-
-      vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-      gl_Position = projectionMatrix * modelViewPosition; 
+    varying vec3 vNormal;
+    varying vec3 vPositionNormal;
+    void main() 
+    {
+      vNormal = normalize( normalMatrix * normal );
+      vPositionNormal = normalize(( modelViewMatrix * vec4(position, 1.0) ).xyz);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     }
   `
 }
 
 function fragmentShaderHalo() {
     return `
-      // varying float intensity;
-      // void main() {
-      //   vec3 glow = vec3(0, 1, 0) * intensity;
-      //   gl_FragColor = vec4( glow, 1.0 );
-      // }
-      uniform vec3 colorA; 
-      uniform vec3 colorB; 
-      varying vec3 vUv;
-
-      void main() {
-        float intensity = pow( 0.7 - dot( vUv, vec3( 0.0, 0.0, 1.0 ) ), 4.0 );
-        gl_FragColor = vec4(mix(colorA, colorB, vUv.z) * intensity, 1.0);
-        // gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+      uniform vec3 glowColor;
+      uniform float p;
+      varying vec3 vNormal;
+      varying vec3 vPositionNormal;
+      void main() 
+      {
+        float a = pow(abs(dot(vNormal, vPositionNormal)), p );
+        gl_FragColor = vec4( glowColor, a );
       }
   `
 }
@@ -182,12 +170,12 @@ function createHaloShader() {
     return new ShaderMaterial ( 
         {
           uniforms: { 
-            colorA: {type: 'vec3', value: new Color(0xFFA23E)},
-            colorB: {type: 'vec3', value: new Color(0xffffff)}
+            "p":   { type: "f", value: 3.0},
+            glowColor: { type: "c", value: new Color(0xFF901C) }
           },
           vertexShader: vertexShaderHalo(),
           fragmentShader: fragmentShaderHalo(),
-          side: BackSide,
+          side: FrontSide,
           blending: AdditiveBlending,
           transparent: true
         }   
@@ -265,201 +253,3 @@ function createFresnelShader() {
 
 
 export { createHaloShader, createFresnelShader, fragmentShaderFresnel, vertexShaderFresnel, createStarShader }
-
-// {
-//   uniforms: {
-
-//     "mRefractionRatio": { type: "f", value: 1.02 },
-//     "mFresnelBias": { type: "f", value: 0.1 },
-//     "mFresnelPower": { type: "f", value: 2.0 },
-//     "mFresnelScale": { type: "f", value: 1.0 },
-//     "tCube": { type: "t", value: null }
-//   },
-
-//   vertexShader: [
-
-//     "uniform float mRefractionRatio;",
-//     "uniform float mFresnelBias;",
-//     "uniform float mFresnelScale;",
-//     "uniform float mFresnelPower;",
-
-//     "varying vec3 vReflect;",
-//     "varying vec3 vRefract[3];",
-//     "varying float vReflectionFactor;",
-
-//     "void main() {",
-
-//         "vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );",
-//         "vec4 worldPosition = modelMatrix * vec4( position, 1.0 );",
-
-//         "vec3 worldNormal = normalize( mat3( modelMatrix[0].xyz, ",
-//         "    modelMatrix[1].xyz, modelMatrix[2].xyz ) * normal );",
-
-//         "vec3 I = worldPosition.xyz - cameraPosition;",
-
-//         "vReflect = reflect( I, worldNormal );",
-//         "vRefract[0] = refract( normalize( I ), worldNormal, ",
-//         "    mRefractionRatio );",
-//         "vRefract[1] = refract( normalize( I ), worldNormal, ",
-//         "    mRefractionRatio * 0.99 );",
-//         "vRefract[2] = refract( normalize( I ), worldNormal, ",
-//         "    mRefractionRatio * 0.98 );",
-//         "vReflectionFactor = mFresnelBias + mFresnelScale * ",
-//         "    pow( 1.0 + dot( normalize( I ), worldNormal ), ",
-//         "    mFresnelPower );",
-
-//         "gl_Position = projectionMatrix * mvPosition;",
-
-//     "}"
-//   ],
-//     fragmentShader: [
-
-//       "uniform samplerCube tCube;",
-
-//       "varying vec3 vReflect;",
-//       "varying vec3 vRefract[3];",
-//       "varying float vReflectionFactor;",
-
-//       "void main() {",
-
-//           "vec4 reflectedColor = textureCube( tCube, ",
-//           "    vec3( -vReflect.x, vReflect.yz ) );",
-//           "vec4 refractedColor = vec4( 1.0 );",
-
-//           "refractedColor.r = textureCube( tCube, ",
-//           "    vec3( -vRefract[0].x, vRefract[0].yz ) ).r;",
-//           "refractedColor.g = textureCube( tCube, ",
-//           "    vec3( -vRefract[1].x, vRefract[1].yz ) ).g;",
-//           "refractedColor.b = textureCube( tCube, ",
-//           "    vec3( -vRefract[2].x, vRefract[2].yz ) ).b;",
-
-//           "gl_FragColor = mix( refractedColor, ",
-//           "    reflectedColor, clamp( vReflectionFactor, ",
-//           "    0.0, 1.0 ) );",
-//       "}"
-//   ]
-// }
-// );
-
-// function VolumetericLightShader() {
-//   return new ShaderMaterial (
-//     {
-//       uniforms: {
-//         tDiffuse: {value:null},
-//         lightPosition: {value: new Vector2(0.5, 0.5)},
-//         exposure: {value: 0.18},
-//         decay: {value: 0.95},
-//         density: {value: 0.8},
-//         weight: {value: 0.4},
-//         samples: {value: 50}
-//       },
-    
-//       vertexShader: [
-//         "varying vec2 vUv;",
-//         "void main() {",
-//           "vUv = uv;",
-//           "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-//         "}"
-//       ].join("\n"),
-    
-//       fragmentShader: [
-//         "varying vec2 vUv;",
-//         "uniform sampler2D tDiffuse;",
-//         "uniform vec2 lightPosition;",
-//         "uniform float exposure;",
-//         "uniform float decay;",
-//         "uniform float density;",
-//         "uniform float weight;",
-//         "uniform int samples;",
-//         "const int MAX_SAMPLES = 100;",
-//         "void main()",
-//         "{",
-//           "vec2 texCoord = vUv;",
-//           "vec2 deltaTextCoord = texCoord - lightPosition;",
-//           "deltaTextCoord *= 1.0 / float(samples) * density;",
-//           "vec4 color = texture2D(tDiffuse, texCoord);",
-//           "float illuminationDecay = 1.0;",
-//           "for(int i=0; i < MAX_SAMPLES; i++)",
-//           "{",
-//             "if(i == samples){",
-//               "break;",
-//             "}",
-//             "texCoord -= deltaTextCoord;",
-//             "vec4 sample = texture2D(tDiffuse, texCoord);",
-//             "sample *= illuminationDecay * weight;",
-//             "color += sample;",
-//             "illuminationDecay *= decay;",
-//           "}",
-//           "gl_FragColor = color * exposure;",
-//         "}"
-//       ].join("\n") 
-//     }
-//   );
-// }
-
-// function AdditiveBlendingShader() {
-//   return new ShaderMaterial (
-//     {
-
-//       uniforms: {
-//         tDiffuse: { value:null },
-//         tAdd: { value:null }
-//       },
-    
-//       vertexShader: [
-//         "varying vec2 vUv;",
-//         "void main() {",
-//           "vUv = uv;",
-//           "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-//         "}"
-//       ].join("\n"),
-    
-//       fragmentShader: [
-//         "uniform sampler2D tDiffuse;",
-//         "uniform sampler2D tAdd;",
-//         "varying vec2 vUv;",
-//         "void main() {",
-//           "vec4 color = texture2D( tDiffuse, vUv );",
-//           "vec4 add = texture2D( tAdd, vUv );",
-//           "gl_FragColor = color + add;",
-//         "}"
-//       ].join("\n")
-//     }
-//   );
-// }
-
-// function vertexShaderFresnel() {
-//   return `
-//     uniform float fresnelBias;
-//     uniform float fresnelScale;
-//     uniform float fresnelPower;
-    
-//     varying float vReflectionFactor;
-    
-//     void main() {
-//       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-//       vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-    
-//       vec3 worldNormal = normalize( mat3( modelMatrix[0].xyz, modelMatrix[1].xyz, modelMatrix[2].xyz ) * normal );
-    
-//       vec3 I = worldPosition.xyz - cameraPosition;
-    
-//       vReflectionFactor = fresnelBias + fresnelScale * pow( 1.0 + dot( normalize( I ), worldNormal ), fresnelPower );
-    
-//       gl_Position = projectionMatrix * mvPosition;
-//     }
-//   `
-// }
-
-// function fragmentShaderFresnel() {
-//   return `
-//     uniform vec3 color1;
-//     uniform vec3 color2;
-    
-//     varying float vReflectionFactor;
-    
-//     void main() {
-//       gl_FragColor = vec4(mix(color2, color1, vec3(clamp( vReflectionFactor, 0.0, 1.0 ))), 1.0);
-//     }
-//   `
-// }
