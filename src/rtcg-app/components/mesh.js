@@ -113,9 +113,9 @@ function createSolarSystem(solarSystem) {
 
                     // Create Clouds
                     const clouds =  createSphere(element.clouds.diameter * 5, element.clouds.width, element.clouds.height, element.clouds.texture, element.clouds.material, element.clouds.speed, element.clouds.metalness, element.clouds.roughness, element.clouds.specularmap, element.clouds.normalmap, element.clouds.bumpmap, element.clouds.transparent, element.clouds.opacity);
-                    const earthObj3D = new createObject3D(element.moon.orbitspeed);
                     
                     // Create Moon
+                    const earthObj3D = new createObject3D(element.moon.orbitspeed); // Moon's object to orbit around
                     const moon =  createSphere(element.moon.diameter * 5, element.moon.width, element.moon.height, element.moon.texture, element.moon.material, element.moon.speed, element.moon.metalness, element.moon.roughness, element.moon.specularmap, element.moon.normalmap, element.moon.bumpmap, element.moon.transparent, element.moon.opacity);
                     moon.position.set(element.moon.distance/10, 0, 0);
                     const fresnelObjMoon =  createSphere(element.moon.diameter * 5, element.moon.width, element.moon.height, null, createFresnelShader(), null, null, null, null, null, null, null, null);

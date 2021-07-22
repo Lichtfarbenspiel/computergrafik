@@ -298,7 +298,7 @@ class RTCG {
             solarSystemObj.children[i].children.forEach(element => {
                 anim_loop.animated_objects.push(element.children[0]); // add each planets's sattelite object to animation Loop (planet rotation)
                 if ( i == 4 ) {
-                    anim_loop.animated_objects.push(element.children[0].children[1], element.children[0].children[1].children[0]); // add moon's sattelite object to animation Loop
+                    anim_loop.animated_objects.push(element.children[0].children[1], element.children[0].children[1].children[0]); // add Moon's earthObj3D and moon object to animation Loop
                 }
            });
             anim_loop.animated_objects.push(solarSystemObj.children[i]); // add each planets's rotation Object to animation Loop (planet orbit)
@@ -307,27 +307,25 @@ class RTCG {
 
         // CREATE GUI
         var params  = {
-            hideBars: false,
             planets:'Vertical'
         };
 
-        // const planetsSpeed = gui.add(params, 0, 10, 0.5).name('Planets Speed').listen();
+        
         const planets = gui.add(params , 'planets', 
             ['Sun', 'Mercury', 'Venus', 'Earth', 'Moon', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'])
             .name('planets')
             .listen();
 
-
         // Jump to selected planet    
         planets.onChange(
             function(planet) {
                 console.log(planet);
+                controls.object.rotation.set(0, 0, 0);
                 switch (planet) {
                     case 'Sun':
                         solarSystemObj.children[0].add(camera);
                         controls.object.position.set(0, 0, 5);
                         controls.enableRotate = true;
-                        controls.update();
                         break;
                     case 'Mercury':
                         solarSystemObj.children[2].children[0].add(camera);
@@ -383,9 +381,7 @@ class RTCG {
                 }
             }
         );
-
-        console.log(anim_loop.animated_objects);
-        const resizer = new Resizer(container, camera, renderer);
+        new Resizer(container, camera, renderer);
     }
 
     render() {
