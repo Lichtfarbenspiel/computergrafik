@@ -44,7 +44,7 @@ class RTCG {
                 diameter: 1,
                 width: 32,
                 height: 32,
-                texture: './../../img/sun.jpg',
+                texture: './computergrafik/img/sun.jpg',
                 material: null,
                 speed:  0.2160000, // 25 Days rotation
                 metalness: 1,
